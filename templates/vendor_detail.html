@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ vendor.business_name }} - Helpo Services</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f9f9f9;
+    }
+    .vendor-photo {
+      max-width: 200px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .photo-grid img {
+      height: 180px;
+      object-fit: cover;
+    }
+    .review-box {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #6A0DAD;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .review-photo {
+      max-width: 100px;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+    .progress-bar {
+      background-color: #FFA000 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar" style="background-color: #4B0082; color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap;">
+    <h1 style="margin: 0; font-size: 1.5rem;">Helpo Services</h1>
+    <div>
+      <a href="/" style="margin-left: 1rem; color: white; background-color: #6A0DAD; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 14px;">🏠 Home</a>
+      <a href="/vendor" style="margin-left: 1rem; color: white; background-color: #6A0DAD; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 14px;">🛠 Register Free Business</a>
+      <a href="/admin/login" style="margin-left: 1rem; color: white; background-color: #6A0DAD; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 14px;">🔐 Login</a>
+    </div>
+  </header>
+
+  <div class="container py-4">
+
+    {% if vendor.photos %}
+    <section class="mb-4">
+      <div class="row g-3 photo-grid">
+        {% for photo in vendor.photos.split(',') %}
+          <div class="col-6 col-md-4 col-lg-3">
+            <img src="/static/uploads/{{ photo.strip() }}" class="img-fluid rounded shadow-sm" alt="Vendor photo">
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="mb-4">
+      <h3 class="fw-bold mb-2">{{ vendor.business_name }}</h3>
+
+      {% if average_rating %}
+        <p class="text-warning fs-5 mb-3">
+          ⭐<strong>{{ average_rating }}/5</strong> ({{ reviews|length }} reviews)
+        </p>
+      {% else %}
+        <p class="text-muted">No ratings yet.</p>
+      {% endif %}
+
+      <p><strong>📞 Phone:</strong> <a href="tel:{{ vendor.phone }}" class="text-primary text-decoration-underline fw-bold">{{ vendor.phone }}</a></p>
+
+      <p><strong>📍 Address:</strong><br>
+        {{ vendor.plot_info }}, {{ vendor.building_info }}, {{ vendor.street }}, {{ vendor.landmark }},
+        {{ vendor.area }}, {{ vendor.city }}, {{ vendor.state }} - {{ vendor.pincode }}
+      </p>
+
+      <p><strong>🔧 Category:</strong> {{ vendor.category }}</p>
+    </section>
+
+    {% if average_rating %}
+    <section class="mb-5">
+      <h4 class="mb-3">Ratings & Reviews</h4>
+      <div class="row">
+        <div class="col-md-3 text-center">
+          <h1 class="display-4">{{ average_rating }}</h1>
+          <p class="text-muted">{{ total_ratings }} Ratings</p>
+        </div>
+        <div class="col-md-9">
+          {% for star in range(5, 0, -1) %}
+            {% set count = rating_counts.get(star, 0) %}
+            {% set percent = (count / total_ratings * 100) if total_ratings else 0 %}
+            <div class="d-flex align-items-center mb-2">
+              <span style="width: 2rem;">{{ star }}★</span>
+              <div class="progress w-100 mx-2" style="height: 10px;">
+                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ percent }}%;"></div>
+              </div>
+              <span class="text-muted" style="width: 4rem;">{{ count }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="mb-5">
+      <h4 class="mb-3">🗣 Customer Reviews</h4>
+      {% for review in reviews %}
+        <div class="review-box mb-3">
+          <strong>{{ review['UserName'] }}</strong> — ⭐ {{ review['Rating'] }}/5<br>
+          <small class="text-muted">{{ review['Timestamp'] }}</small>
+          <p class="mt-2">{{ review['Comment'] }}</p>
+
+          {% if review['Photo'] %}
+            <div class="mt-2">
+              <img src="/static/uploads/{{ review['Photo'] }}" alt="Review photo" class="img-thumbnail" style="max-width: 150px;">
+            </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <p>No reviews yet.</p>
+      {% endfor %}
+    </section>
+
+    <section class="mb-5">
+      <h4 class="mb-3">✍️ Submit Your Review</h4>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <input type="text" name="name" placeholder="Your Name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <select name="rating" class="form-select" required>
+            <option value="">Rate</option>
+            {% for i in range(1, 6) %}
+              <option value="{{ i }}">{{ i }} Star{% if i > 1 %}s{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <textarea name="comment" class="form-control" placeholder="Write your review..." required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="reviewPhoto" class="form-label">📸 Upload Photo (optional)</label>
+          <input type="file" name="review_photo" accept="image/*" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+      </form>
+    </section>
+
+    <div class="text-center mt-4">
+      <a href="/" class="btn btn-link">⬅ Back to Home</a>
+    </div>
+
+  </div>
+</body>
+</html>

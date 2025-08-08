@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vendor Profile - Helpo Services</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .navbar {
+      background-color: #4B0082;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .navbar h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: white;
+    }
+    .nav-actions a {
+      margin-left: 1rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      background-color: #6A0DAD;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    .nav-actions a:hover {
+      background-color: #500c8e;
+    }
+    textarea[disabled], input[disabled] {
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="navbar">
+  <h1>Helpo Services</h1>
+  <div class="nav-actions">
+    <a href="/">🏠 Home</a>
+    <a href="/vendor/dashboard">📊 Dashboard</a>
+    <a href="/vendor/profile">👤 Profile</a>
+    <a href="/vendor/logout" class="text-danger">🚪 Logout</a>
+  </div>
+</header>
+<body>
+  <div class="container mt-4">
+    <h3>📞 Callback Requests (Leads)</h3>
+    {% if leads %}
+      <table class="table table-bordered mt-3">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Message</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lead in leads %}
+            <tr>
+              <td>{{ lead.name }}</td>
+              <td>{{ lead.phone }}</td>
+              <td>{{ lead.message }}</td>
+              <td>{{ lead.timestamp }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-muted">No leads yet.</p>
+    {% endif %}
+    <a href="/vendor/dashboard" class="btn btn-secondary mt-3">⬅️ Back to Dashboard</a>
+  </div>
+</body>
+</html>
