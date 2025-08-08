@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login - Helpo</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div style="max-width: 400px; margin: 80px auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px;">
+    <h2>🔐 Admin Login</h2>
+    <form method="POST">
+      <label>Username</label>
+      <input type="text" name="username" required><br><br>
+      <label>Password</label>
+      <input type="password" name="password" required><br><br>
+      <button type="submit">Login</button>
+    </form>
+    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+  </div>
+</body>
+</html>

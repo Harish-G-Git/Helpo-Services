@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register Vendor - Helpo Services</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    .form-page { display: none; }
+	.form-page.active { display: block; }
+	.is-invalid { border-color: red; }
+	 input:invalid + .invalid-feedback,
+	 textarea:invalid + .invalid-feedback {
+	 display: block;
+}
+
+  </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
+  <a class="navbar-brand fw-bold" href="#">Helpo Services</a>
+  <div class="ms-auto">
+    <a class="btn btn-outline-primary me-2" href="/">Home</a>
+    <a class="btn btn-outline-success" href="vendor/login">Login</a>
+  </div>
+</nav>
+
+
+<div class="container mt-5" style="max-width: 600px;">
+  <h2 class="text-center mb-4">Register Your Business</h2>
+  {% if message %}
+  <div class="alert alert-info">{{ message }}</div>
+  {% endif %}
+  <form method="POST" enctype="multipart/form-data" id="vendorForm" novalidate>
+    <!-- Page 1 -->
+    <div class="form-page active" id="page1">
+      <div class="mb-3">
+        <label>Business Name</label>
+        <input type="text" class="form-control" name="business_name" required>
+		<div class="invalid-feedback">This field is required.</div>
+      </div>
+      <!-- Phone Number + OTP -->
+<div class="mb-3">
+  <label>Phone Number (used for WhatsApp communication also)</label>
+  <input type="text" class="form-control" id="phone" name="phone" required pattern="[6-9]{1}[0-9]{9}">
+</div>
+
+
+<!-- Email + OTP -->
+<div class="mb-3">
+  <label>Email</label>
+  <input type="email" class="form-control" id="emailInput" name="email" required>
+</div>
+
+<div class="mb-3 d-flex">
+  <button type="button" class="btn btn-outline-primary me-2" onclick="sendEmailOtp()">Send Email OTP</button>
+  <input type="text" id="emailOtp" placeholder="Enter OTP" class="form-control me-2" style="flex: 1;" required>
+  <button type="button" class="btn btn-outline-success" onclick="verifyEmailOtp()">Verify Email OTP</button>
+</div>
+
+
+      <div class="mb-3">
+        <label>Password</label>
+        <input type="password" class="form-control" name="password" required>
+      </div>
+      <div class="mb-3">
+        <label>Confirm Password</label>
+        <input type="password" class="form-control" name="confirm_password" required>
+		
+	  <div class="mb-3 form-check">
+		<input type="checkbox" class="form-check-input" id="showPassword" onclick="togglePassword()">
+		<label class="form-check-label" for="showPassword">Show Password</label>
+	  </div>
+	  
+      </div>
+      <button type="button" class="btn btn-primary w-100" onclick="nextPage(1)">Next</button>
+      </div>
+
+	  
+    <!-- Page 2 -->
+    <div class="form-page" id="page2">
+      <div class="mb-3">
+        <label>Plot / Bldg / Shop / Floor</label>
+        <input type="text" class="form-control" name="plot_info" required>
+      </div>
+      <div class="mb-3">
+        <label>Building / Market / Colony</label>
+        <input type="text" class="form-control" name="building_info" required>
+      </div>
+      <div class="mb-3">
+        <label>Street / Road</label>
+        <input type="text" class="form-control" name="street" required>
+      </div>
+      <div class="mb-3">
+        <label>Landmark</label>
+        <input type="text" class="form-control" name="landmark">
+      </div>
+      <div class="mb-3">
+        <label>Area</label>
+        <input type="text" class="form-control" name="area" required>
+      </div>
+      <div class="mb-3">
+        <label>City</label>
+        <input type="text" class="form-control" name="city" required>
+      </div>
+      <div class="mb-3">
+        <label>State</label>
+        <input type="text" class="form-control" name="state" required>
+      </div>
+      <div class="mb-3">
+        <label>Pincode</label>
+        <input type="text" class="form-control" name="pincode" required>
+      </div>
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" onclick="prevPage(2)">Back</button>
+        <button type="button" class="btn btn-primary" onclick="nextPage(2)">Next</button>
+      </div>
+    </div>
+
+    <!-- Page 3 -->
+    <div class="form-page" id="page3">
+      <div class="mb-3">
+        <label>Business Category</label>
+        <input type="text" class="form-control" name="category" required>
+      </div>
+      <div class="mb-3">
+        <label>Service Hours</label>
+        <input type="text" class="form-control" name="service_hours" placeholder="e.g. 10 AM – 8 PM">
+      </div>
+      <div class="mb-3">
+        <label>Upload Photos</label>
+        <input type="file" class="form-control" name="photos" multiple>
+      </div>
+      <div class="mb-3">
+        <label>Business Description</label>
+        <textarea class="form-control" name="description" rows="3"></textarea>
+      </div>
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" onclick="prevPage(3)">Back</button>
+        <button type="submit" class="btn btn-success">Register</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById("vendorForm").addEventListener("submit", function(e) {
+  const phoneInput = document.getElementById("phone");
+  const emailInput = document.getElementById("emailInput");
+
+  const phoneValid = /^[6-9]\d{9}$/.test(phoneInput.value);
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+
+  phoneInput.classList.remove("is-invalid");
+  emailInput.classList.remove("is-invalid");
+
+  if (!phoneValid || !emailValid) {
+    if (!phoneValid) phoneInput.classList.add("is-invalid");
+    if (!emailValid) emailInput.classList.add("is-invalid");
+    e.preventDefault(); // Stop form submission
+  }
+});
+</script>
+
+
+
+
+<script>
+let emailOtpVerified = false;
+
+function sendEmailOtp() {
+  const email = document.getElementById("emailInput").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Enter a valid email address.");
+    return;
+  }
+
+  fetch("/send_email_otp", {
+    method: "POST",
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `email=${encodeURIComponent(email)}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.status === "success") {
+      alert("Email OTP sent!");
+    } else {
+      alert("Failed to send email OTP.");
+    }
+  })
+  .catch(err => {
+    alert("Server error while sending email OTP.");
+    console.error(err);
+  });
+}
+</script>
+
+<script>
+function verifyEmailOtp() {
+  const email = document.getElementById("emailInput").value.trim();
+  const otp = document.getElementById("emailOtp").value.trim();
+
+  fetch("/verify_email_otp", {
+    method: "POST",
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    const otpField = document.getElementById("emailOtp");
+
+    if (data.status === "success") {
+      emailOtpVerified = true;
+      alert("Email OTP verified!");
+      document.getElementById("emailOtp").disabled = true;
+      
+      // ✅ Visual feedback
+      otpField.classList.remove("is-invalid");
+      otpField.classList.add("is-valid");
+
+    } else {
+      alert("Incorrect email OTP.");
+      emailOtpVerified = false;
+      otpField.classList.add("is-invalid");
+      otpField.classList.remove("is-valid");
+    }
+  })
+  .catch(err => {
+    alert("Server error during email OTP verification.");
+    console.error(err);
+  });
+}
+</script>
+
+
+
+
+<script>
+function prevPage(current) {
+  document.getElementById(`page${current}`).classList.remove("active");
+  document.getElementById(`page${current - 1}`).classList.add("active");
+}
+</script>
+
+<script>
+function nextPage(current) {
+  const currentPage = document.getElementById(`page${current}`);
+  const inputs = currentPage.querySelectorAll("input[required], textarea[required], select[required]");
+  let firstInvalid = null;
+  let allFilled = true;
+
+  inputs.forEach(input => {
+    let isValid = true;
+
+    if (input.type === "file") {
+      isValid = input.files.length > 0;
+    } else {
+      isValid = input.value.trim() !== "";
+    }
+
+    if (!isValid) {
+      input.classList.add("is-invalid");
+      allFilled = false;
+      if (!firstInvalid) firstInvalid = input;
+    } else {
+      input.classList.remove("is-invalid");
+    }
+  });
+
+  // ✅ Page 1 validations
+  if (current === 1) {
+    // Phone validation
+    const phoneInput = document.getElementById("phone");
+    const phonePattern = /^[6-9]\d{9}$/;
+    if (!phonePattern.test(phoneInput.value.trim())) {
+      phoneInput.classList.add("is-invalid");
+      alert("Please enter a valid 10-digit Indian phone number starting with 6–9.");
+      phoneInput.focus();
+      return;
+    } else {
+      phoneInput.classList.remove("is-invalid");
+    }
+
+    // Password validation
+    const password = document.querySelector('input[name="password"]').value.trim();
+    const confirmPassword = document.querySelector('input[name="confirm_password"]').value.trim();
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordPattern.test(password)) {
+      alert("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Password and Confirm Password must match.");
+      return;
+    }
+
+    // Email OTP verification check
+    if (!emailOtpVerified) {
+      alert("Please verify your Email OTP before proceeding.");
+      return;
+    }
+  }
+
+  // Required fields check
+  if (!allFilled) {
+    alert("Please fill in all required fields.");
+    if (firstInvalid) firstInvalid.focus();
+    return;
+  }
+
+  // ✅ Move to next page
+  currentPage.classList.remove("active");
+  document.getElementById(`page${current + 1}`).classList.add("active");
+}
+</script>
+
+
+
+
+
+
+<script>
+function togglePassword() {
+  const passwordField = document.querySelector('input[name="password"]');
+  const confirmField = document.querySelector('input[name="confirm_password"]');
+  const type = passwordField.type === "password" ? "text" : "password";
+  passwordField.type = type;
+  confirmField.type = type;
+}
+</script>
+
+</body>
+</html>

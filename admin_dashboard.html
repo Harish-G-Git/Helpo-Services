@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard - Helpo</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <h1>👨‍💼 Helpo Admin Dashboard</h1>
+  <table border="1" cellpadding="6" style="margin: auto;">
+    <tr>
+      <th>Name</th>
+      <th>Phone</th>
+      <th>City</th>
+      <th>Category</th>
+      <th>Service</th>
+    </tr>
+    {% for v in vendors %}
+      <tr>
+        <td>{{ v.name }}</td>
+        <td>{{ v.phone }}</td>
+        <td>{{ v.city }}</td>
+        <td>{{ v.category }}</td>
+        <td>{{ v.service_type }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <p style="text-align:center;"><a href="/">⬅ Back to Home</a></p>
+</body>
+</html>
