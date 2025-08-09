@@ -53,7 +53,18 @@
 </header>
 <body>
   <div class="container mt-4">
-    <h3>📞 Callback Requests (Leads)</h3>
+    <h3>Your Leads details (📞 Callback Requests)</h3>
+	</div>
+	<div class="container mt-4">
+<form method="GET" action="/vendor/leads" class="row g-2 mb-3">
+  <div class="col-auto">
+    <input type="text" name="search" placeholder="Search by name or phone" class="form-control" value="{{ request.args.get('search', '') }}">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </div>
+</form>
+
     {% if leads %}
       <table class="table table-bordered mt-3">
         <thead>
@@ -78,7 +89,7 @@
     {% else %}
       <p class="text-muted">No leads yet.</p>
     {% endif %}
-    <a href="/vendor/dashboard" class="btn btn-secondary mt-3">⬅️ Back to Dashboard</a>
   </div>
+  
 </body>
 </html>

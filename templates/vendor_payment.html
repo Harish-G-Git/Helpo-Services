@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pay with Razorpay</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <h2>Subscribe to {{ plan }} Plan</h2>
+  <button id="rzp-button">Pay ₹{{ amount // 100 }}</button>
+
+  <script>
+    const options = {
+      "key": "{{ razorpay_key }}",
+      "amount": "{{ amount }}",
+      "currency": "INR",
+      "name": "Helpo Services",
+      "description": "{{ plan }} Plan Subscription",
+      "order_id": "{{ order_id }}",
+      "handler": function (response){
+        // After success
+        fetch("/vendor/payment-success", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            payment_id: response.razorpay_payment_id,
+            plan: "{{ plan }}"
+          })
+        }).then(res => window.location.href = "/vendor/dashboard");
+      },
+      "theme": {
+        "color": "#4B0082"
+      }
+    };
+    const rzp1 = new Razorpay(options);
+    document.getElementById('rzp-button').onclick = function(e){
+      rzp1.open();
+      e.preventDefault();
+    };
+  </script>
+</body>
+</html>

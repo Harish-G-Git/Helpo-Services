@@ -63,24 +63,50 @@
     <section class="mb-4">
       <h3 class="fw-bold mb-2">{{ vendor.business_name }}</h3>
 
-      {% if average_rating %}
-        <p class="text-warning fs-5 mb-3">
-          ⭐<strong>{{ average_rating }}/5</strong> ({{ reviews|length }} reviews)
-        </p>
-      {% else %}
-        <p class="text-muted">No ratings yet.</p>
-      {% endif %}
+     </h5>
 
-      <p><strong>📞 Phone:</strong> <a href="tel:{{ vendor.phone }}" class="text-primary text-decoration-underline fw-bold">{{ vendor.phone }}</a></p>
 
-      <p><strong>📍 Address:</strong><br>
-        {{ vendor.plot_info }}, {{ vendor.building_info }}, {{ vendor.street }}, {{ vendor.landmark }},
-        {{ vendor.area }}, {{ vendor.city }}, {{ vendor.state }} - {{ vendor.pincode }}
-      </p>
+              <!-- Rating -->
+              {% if vendor.average_rating %}
+                <h5 class="mb-1">
+                  ⭐ {{ vendor.average_rating }}/5
+                  {% if vendor.average_rating >= 4.5 %}
+                    <span class="badge bg-success">Top Rated</span>
+                  {% endif %}
+                </h5>
+              {% else %}
+                <h5 class="mb-1 text-muted">⭐ No ratings yet</h5>
+              {% endif %}
 
-      <p><strong>🔧 Category:</strong> {{ vendor.category }}</p>
-    </section>
+              <!-- Category -->
+              <p class="mb-1 fw-bold text-primary">🛠 {{ vendor.category }}</p>
 
+              <!-- City -->
+              <p class="mb-1 text-dark">🌍 {{ vendor.city }}</p>
+
+              <!-- Service Hours -->
+              {% if vendor.service_hours %}
+                <p class="mb-1 text-muted">⏰ {{ vendor.service_hours }}</p>
+              {% endif %}
+
+              <!-- Description -->
+             
+  <p class="mb-2">💬
+
+    {{ vendor.plot_info }}
+    {{ vendor.building_info }}<br>
+    {{ vendor.street }}
+    {{ vendor.landmark }}
+    {{ vendor.area }}<br>
+    {{ vendor.city }}, {{ vendor.state }} - {{ vendor.pincode }}
+  </p>
+<p class="mb-1 text-dark">💬 {{ vendor.description }}</p>
+
+<div class="container my-4">
+  <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
     {% if average_rating %}
     <section class="mb-5">
       <h4 class="mb-3">Ratings & Reviews</h4>
@@ -103,9 +129,13 @@
           {% endfor %}
         </div>
       </div>
+	  </div>
+      </div>
+	  </div>
     </section>
     {% endif %}
-
+	
+	
     <section class="mb-5">
       <h4 class="mb-3">🗣 Customer Reviews</h4>
       {% for review in reviews %}
@@ -150,9 +180,7 @@
       </form>
     </section>
 
-    <div class="text-center mt-4">
-      <a href="/" class="btn btn-link">⬅ Back to Home</a>
-    </div>
+  
 
   </div>
 </body>

@@ -11,19 +11,40 @@
 	 textarea:invalid + .invalid-feedback {
 	 display: block;
 }
-
+.navbar {
+      background-color: #4B0082;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+	.nav-actions a {
+      margin-left: 1rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      background-color: #6A0DAD;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    .nav-actions a:hover {
+      background-color: #500c8e;
   </style>
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-  <a class="navbar-brand fw-bold" href="#">Helpo Services</a>
-  <div class="ms-auto">
-    <a class="btn btn-outline-primary me-2" href="/">Home</a>
-    <a class="btn btn-outline-success" href="vendor/login">Login</a>
+<header class="navbar">
+  <h1>Helpo Services</h1>
+  <div class="nav-actions">
+    <a href="/">🏠 Home</a>
+   
+    <a href="/vendor/login">🔐 Login</a>
   </div>
-</nav>
-
+</header>
 
 <div class="container mt-5" style="max-width: 600px;">
   <h2 class="text-center mb-4">Register Your Business</h2>

@@ -163,9 +163,9 @@
     <a href="/vendor">🛠 Register Free Business</a>
     <a href="/vendor/login">🔐 Login</a>
   {% endif %}
-</div>
+ </div>
+</header>
 
-  </header>
 
   <!-- Auto-Sliding Ad Banner -->
   <section class="ad-carousel">
@@ -179,6 +179,7 @@
       {% endfor %}
     </div>
   </section>
+
 
   <!-- Popular Services -->
   <section class="vendor-list container py-4">
@@ -233,9 +234,18 @@
               {% endif %}
 
               <!-- Description -->
-              {% if vendor.description %}
-                <p class="mb-2">💬 {{ vendor.description }}</p>
-              {% endif %}
+             {% if vendor.city or vendor.state or vendor.pincode %}
+  <p class="mb-2">💬
+
+    {{ vendor.plot_info }}
+    {{ vendor.building_info }}<br>
+    {{ vendor.street }}
+    {{ vendor.landmark }}
+    {{ vendor.area }}<br>
+    {{ vendor.city }}, {{ vendor.state }} - {{ vendor.pincode }}
+  </p>
+{% endif %}
+
 
               <!-- Button Visibility Logic -->
               {% set show_phone = False %}
