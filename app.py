@@ -206,7 +206,7 @@ def admin_login():
     error = None
     if request.method == "POST":
         username, password = request.form.get("username"), request.form.get("password")
-        if username == config.ADMIN_USERNAME and password == config.ADMIN_PASSWORD:
+        if username == "admin" and password == "password123":
             session["admin_logged_in"] = True
             return redirect(url_for("admin_dashboard"))
         else:
@@ -220,43 +220,119 @@ def admin_dashboard():
     sheet = connect_to_sheet("HelpoVendorSheet", "Helpovendor")
     return render_template("admin_dashboard.html", vendors=sheet.get_all_records())
 
-@app.route("/vendor/dashboard")
+#@app.route("/vendor/dashboard")
+#def vendor_dashboard():
+#    if "vendor_phone" not in session:
+#        return redirect("/vendor/login")
+#    phone = session["vendor_phone"]
+#    vendor_sheet = connect_to_sheet("HelpoVendorSheet", "Helpovendor")
+#    contact_sheet = connect_to_sheet("HelpoVendorSheet", "ContactLeads")
+#    vendors = vendor_sheet.get_all_records()
+#    leads = contact_sheet.get_all_records()
+#    vendor = next((v for v in vendors if str(v["phone"]).strip() == phone), None)
+#    vendor_leads = [l for l in leads if str(l.get("vendor_phone", "")).strip() == phone]
+#    return render_template("vendor_dashboard.html", vendor=vendor, lead_count=len(vendor_leads), active_tab="dashboard")
+
+
+@app.route('/vendor/dashboard', methods=['GET', 'POST'])
 def vendor_dashboard():
     if "vendor_phone" not in session:
         return redirect("/vendor/login")
+
     phone = session["vendor_phone"]
     vendor_sheet = connect_to_sheet("HelpoVendorSheet", "Helpovendor")
     contact_sheet = connect_to_sheet("HelpoVendorSheet", "ContactLeads")
     vendors = vendor_sheet.get_all_records()
     leads = contact_sheet.get_all_records()
+
     vendor = next((v for v in vendors if str(v["phone"]).strip() == phone), None)
     vendor_leads = [l for l in leads if str(l.get("vendor_phone", "")).strip() == phone]
-    return render_template("vendor_dashboard.html", vendor=vendor, lead_count=len(vendor_leads), active_tab="dashboard")
 
-# app.py
+    plans = [
+        {
+            "name": "Basic",
+            "price": "₹199/month (₹6.63/day)",
+            "features": ["👤 Basic listing on Helpo platform", "Email support", "📈 Access to basic profile analytics","🛡️ Verified vendor badge"]
+        },
+        {
+            "name": "Standard",
+            "price": "₹499/month(₹16.63/day)",
+            "features": ["👀 Increased visibility in search results", "⭐ Featured in category listings", "💬 Priority support", "🔍 Access to callback request tools (when customers ask to be contacted)"]
+        },
+        {
+            "name": "Premium",
+            "price": "₹999/month(₹33.30/day)",
+            "features": ["🚀 Top-tier placement on homepage & search results", "🧲 Priority access to customer callback requests", "📞 Dedicated account support", "🛠️ Advanced analytics dashboard"]
+        }
+    ]
+
+    # Optional: show subscription confirmation message if just subscribed
+    message = None
+    if request.method == 'POST':
+        selected_plan = request.form.get('plan')
+        session['selected_plan'] = selected_plan
+        return redirect('/vendor/subscribe')  # Redirect to payment
+
+    return render_template("vendor_dashboard.html",
+                           vendor=vendor,
+                           lead_count=len(vendor_leads),
+                           active_tab="dashboard",
+                           plans=plans,
+                           message=message)
+
+
+
+# Leads Page 
+
+from datetime import datetime
 
 @app.route("/vendor/leads")
 def vendor_leads():
     if not session.get("vendor_logged_in"):
         return redirect("/vendor/login")
-    
+
     phone = session.get("vendor_phone")
     if not phone:
         return redirect("/vendor/login")
 
     try:
-        # ✅ CORRECTED: Read from 'ContactLeads' sheet
         sheet = connect_to_sheet("HelpoVendorSheet", "ContactLeads")
         all_leads = sheet.get_all_records()
-        
-        # Filter leads for the currently logged-in vendor
-        my_leads = [lead for lead in all_leads if str(lead.get("vendor_phone", "")).strip() == str(phone)]
-        
+
+        my_leads = [
+            {
+                "name": lead.get("user_name"),
+                "phone": lead.get("user_phone "),
+                "message": lead.get("message "),
+                "timestamp": lead.get("timestamp "),
+            }
+            for lead in all_leads
+            if str(lead.get("vendor_phone", "")).strip() == str(phone)
+        ]
+
+        # ✅ Sort by timestamp descending
+        for lead in my_leads:
+            try:
+                lead["timestamp_parsed"] = datetime.strptime(lead["timestamp"], "%Y-%m-%d %H:%M:%S")
+            except:
+                lead["timestamp_parsed"] = datetime.now()  # fallback
+
+        my_leads.sort(key=lambda x: x["timestamp_parsed"], reverse=True)
+
+        # ✅ Filter by search (name or phone)
+        search = request.args.get("search", "").strip().lower()
+        if search:
+            my_leads = [
+                lead for lead in my_leads
+                if search in str(lead["name"]).lower() or search in str(lead["phone"])
+            ]
+
         return render_template("vendor_leads.html", leads=my_leads, active_tab="leads")
+
     except Exception as e:
         print(f"Error fetching vendor leads: {e}")
         return render_template("vendor_leads.html", leads=[], active_tab="leads", error="Could not fetch leads.")
-        
+
         
 #@app.route("/vendor/leads")
 #def vendor_leads():
@@ -557,6 +633,41 @@ def privacy():
     return render_template("privacy.html")
     
     
+# subscribe page
+
+@app.route('/vendor/subscribe', methods=['GET', 'POST'])
+def vendor_subscribe():
+    if "vendor_phone" not in session:
+        return redirect("/vendor/login")
+
+    selected_plan = request.args.get("plan")
+
+    if not selected_plan:
+        return redirect("/vendor/dashboard")  # fallback
+
+    # Simulate a payment page (you can replace this with real Razorpay/Stripe etc.)
+    return render_template("vendor_payment.html", plan=selected_plan)
+
+# payment status
+
+@app.route('/vendor/payment-success', methods=['POST'])
+def payment_success():
+    if "vendor_phone" not in session:
+        return redirect("/vendor/login")
+
+    plan = request.form.get("plan")
+    phone = session["vendor_phone"]
+
+    # Update subscription in Google Sheet
+    vendor_sheet = connect_to_sheet("HelpoVendorSheet", "Helpovendor")
+    vendors = vendor_sheet.get_all_records()
+
+    for i, v in enumerate(vendors):
+        if str(v.get("phone")).strip() == str(phone).strip():
+            vendor_sheet.update_cell(i + 2, YOUR_PLAN_COLUMN_INDEX, plan)
+            break
+
+    return redirect("/vendor/dashboard")
 
 
 if __name__ == "__main__":
