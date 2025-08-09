@@ -1,7 +1,7 @@
 import os
 
 # Flask secret key
-SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "CHANGE_ME_SECRET")
+SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "helpo_admin_secret_2025")
 
 # Upload folder
 UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "static/uploads")
