@@ -1,10 +1,14 @@
-<script>
+// ----------------------------
+// Vendor Listing (index.html)
+// ----------------------------
 document.addEventListener("DOMContentLoaded", function () {
   const vendorList = document.getElementById("vendorList");
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
 
+  // Show loading spinner
   function showLoader() {
+    if (!vendorList) return; // skip if not on vendor listing page
     vendorList.innerHTML = `
       <div class="text-center py-4">
         <div class="spinner-border text-primary" role="status">
@@ -13,22 +17,23 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>`;
   }
 
+  // Fetch vendors from API
   function fetchVendors(query = "", category = "") {
+    if (!vendorList) return;
     showLoader();
     fetch(`/api/vendors?query=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`)
       .then(res => res.json())
       .then(data => {
-        // Include vendors with no rating, exclude poorly rated ones
-        const filtered = data.filter(v => v.average_rating === undefined || v.average_rating >= 4);
+        const filtered = data.filter(v => !v.average_rating || v.average_rating >= 4);
         const sorted = filtered.sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0));
         displayVendors(sorted);
       })
-      .catch(err => {
-        console.error("Vendor fetch failed:", err);
+      .catch(() => {
         vendorList.innerHTML = "<p class='text-danger text-center'>Failed to load vendor list.</p>";
       });
   }
 
+  // Convert numeric rating → stars
   function getStars(rating) {
     const full = Math.floor(rating);
     const half = rating % 1 >= 0.5;
@@ -37,7 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return stars.padEnd(5, '☆');
   }
 
+  // Render vendor cards
   function displayVendors(vendors) {
+    if (!vendorList) return;
     if (!vendors.length) {
       vendorList.innerHTML = "<p class='text-muted text-center'>No vendors found.</p>";
       return;
@@ -49,21 +56,20 @@ document.addEventListener("DOMContentLoaded", function () {
         v.area, v.city, v.state, v.pincode
       ].filter(Boolean).join(", ");
 
-      const photoFile = v.photos ? v.photos.split(",")[0] : "default.jpg";
-      const photo = `/static/uploads/${photoFile}`;
+      const photo = v.photos ? v.photos.split(",")[0] : "default.jpg";
       const rating = v.average_rating
         ? `${getStars(v.average_rating)} (${v.average_rating}/5, ${v.review_count} reviews)`
         : "No rating yet";
 
-      const badge = v.average_rating >= 4.5 
-        ? '<span class="badge bg-success ms-2">Top Rated</span>' 
+      const badge = v.average_rating >= 4.5
+        ? '<span class="badge bg-success ms-2">Top Rated</span>'
         : "";
 
       return `
         <div class="card mb-4 p-3 shadow-sm">
           <div class="row g-0">
             <div class="col-md-3 d-flex align-items-center justify-content-center">
-              <img src="${photo}" alt="${v.business_name}" class="rounded" style="max-width: 100%; max-height: 140px; object-fit: cover;">
+              <img src="/static/uploads/${photo}" alt="${v.business_name}" class="rounded" style="max-width: 100%; max-height: 140px; object-fit: cover;">
             </div>
             <div class="col-md-9">
               <div class="card-body">
@@ -85,45 +91,76 @@ document.addEventListener("DOMContentLoaded", function () {
     }).join("");
   }
 
-  // Live search
+  // Event listeners for live search + filter
   if (searchInput) {
     searchInput.addEventListener("input", () => {
       fetchVendors(searchInput.value, categoryFilter?.value || "");
     });
   }
 
-  // Category filter
   if (categoryFilter) {
     categoryFilter.addEventListener("change", () => {
       fetchVendors(searchInput?.value || "", categoryFilter.value);
     });
   }
 
-  // Initial load
-  fetchVendors();
+  // Initial vendor load (only if vendor list exists)
+  if (vendorList) {
+    fetchVendors();
+  }
 });
 
-// Trigger search via button click (consistent IDs)
-function performSearch() {
-  const query = document.getElementById("searchInput")?.value || "";
-  const location = document.getElementById("locationInput")?.value || "";
-  window.location.href = `/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`;
-}
+// ----------------------------
+// Callback Form + Modal (all pages)
+// ----------------------------
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("callbackForm");
+  const modal = document.getElementById("contactModal");
 
-// Callback request (placeholder)
-function requestCallback(vendorId) {
-  alert("Callback requested for Vendor ID: " + vendorId);
-}
-
-// Optional: Get user location only when explicitly called
-function useMyLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      console.log("Lat:", pos.coords.latitude, "Lng:", pos.coords.longitude);
-      // TODO: send coords to backend for nearby vendor filtering
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!document.getElementById("termsCheck").checked) {
+        alert("Please accept Terms & Conditions");
+        return;
+      }
+      fetch("/submit_callback", { method: "POST", body: new FormData(form) })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          form.reset();
+          bootstrap.Modal.getInstance(modal).hide();
+        })
+        .catch(() => alert("Server error"));
     });
-  } else {
-    alert("Geolocation is not supported by this browser.");
   }
+
+  if (modal) {
+    modal.addEventListener("show.bs.modal", e => {
+      const btn = e.relatedTarget;
+      if (btn) {
+        document.getElementById("vendorPhoneInput").value = btn.dataset.phone;
+      }
+    });
+  }
+});
+
+// ----------------------------
+// Search & Location Helpers
+// ----------------------------
+function useMyLocation() {
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+    const data = await res.json();
+    const city = data.address.city || data.address.town || data.address.village || "";
+    document.getElementById("locationInput").value = city;
+  });
 }
-</script>
+
+function searchVendors() {
+  const q = document.getElementById("searchInput")?.value.trim() || "";
+  const city = document.getElementById("locationInput")?.value.trim() || "";
+  if (!q && !city) { alert("Please enter a service or location"); return; }
+  window.location.href = `/?query=${encodeURIComponent(q)}&location=${encodeURIComponent(city)}`;
+}
