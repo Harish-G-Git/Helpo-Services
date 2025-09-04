@@ -10,211 +10,55 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f8f9fa;
-    }
-
-    /* Sticky header */
-    .navbar {
-      background-color: #4B0082;
-      color: white;
-      padding: 0.6rem 1.2rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    .navbar h1 {
-      margin: 0;
-      font-size: 1.4rem;
-    }
-    .nav-actions a {
-      margin-left: 0.8rem;
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .nav-actions a:hover {
-      text-decoration: underline;
-    }
-
-    /* Search bar */
-    .search-bar {
-      flex-wrap: wrap;
-      padding: 0.8rem;
-      background-color: #ffffff;
-      border-radius: 8px;
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .search-input-box input,
-    .location-box input {
-      height: 42px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      padding-left: 12px;
-      font-size: 14px;
-    }
-    .search-input-box { width: 280px; }
-    .location-box { width: 200px; position: relative; }
-    .search-btn {
-      height: 42px;
-      width: 42px;
-      border: none;
-      background-color: #4B0082;
-      color: white;
-      border-radius: 8px;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .location-icon {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 18px;
-      color: #666;
-    }
-
-    @media (max-width: 768px) {
-      .search-bar {
-        flex-direction: column;
-        gap: 10px;
-      }
-      .search-input-box, .location-box {
-        width: 100% !important;
-      }
-    }
-
-    /* Vendor cards */
-    .vendor-card {
-      border: 1px solid #e0e0e0;
-      padding: 12px;
-      border-radius: 8px;
-      background-color: #ffffff;
-      margin-bottom: 12px;
-      transition: box-shadow 0.2s ease-in-out;
-    }
-    .vendor-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .vendor-card img {
-      border-radius: 6px;
-      height: 120px;
-      object-fit: cover;
-      width: 100%;
-    }
-    @media (max-width: 768px) {
-      .vendor-card img { height: 80px; }
-    }
-
-    /* Buttons */
-    .btn-call {
-      background-color: #28a745;
-      color: white;
-      font-weight: bold;
-    }
-    .btn-call:hover { background-color: #218838; }
-    .btn-outline-secondary[disabled] { opacity: 0.6; }
-
-    /* Mobile bottom CTA bar */
-    .mobile-cta {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      border-top: 1px solid #ccc;
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0;
-      z-index: 1000;
-    }
-    .mobile-cta a {
-      flex: 1;
-      text-align: center;
-      padding: 10px;
-      color: white;
-      background: #4B0082;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    @media (min-width: 768px) {
-      .mobile-cta { display: none; }
-    }
-
-    footer {
-      background: #4B0082;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      margin-top: 20px;
-    }
-    footer a {
-      color: white;
-      text-decoration: underline;
-    }
-  </style>
 </head>
 <body>
 
-<header class="navbar">
-  <h1>Helpo Services</h1>
-  <div class="nav-actions">
-    <a href="/">🏠 Home</a>
-    {% if session.get('vendor_logged_in') %}
-      <a href="/vendor/dashboard">Dashboard</a>
-      <a href="/vendor/leads">Leads</a>
-      <a href="/vendor/profile">Profile</a>
-      <a href="/vendor/logout" class="text-danger">Logout</a>
-    {% else %}
-      <a href="/vendor">🛠 Register Your Business</a>
-      <a href="/vendor/login">🔐 Login</a>
-    {% endif %}
+<header class="navbar navbar-expand-lg sticky-top custom-navbar">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <h1 class="navbar-brand m-0 text-white fs-5">Helpo Services</h1>
+    <div class="nav-actions">
+      <a href="/">Home</a>
+      {% if session.get('vendor_logged_in') %}
+        <a href="/vendor/dashboard">Dashboard</a>
+        <a href="/vendor/leads">Leads</a>
+        <a href="/vendor/profile">Profile</a>
+        <a href="/vendor/logout" class="text-danger">Logout</a>
+      {% else %}
+        <a href="/vendor">Register</a>
+        <a href="/vendor/login">Login</a>
+      {% endif %}
+    </div>
   </div>
 </header>
 
-<!-- Search bar -->
-<div class="container">
+<!-- Search Bar -->
+<div class="container my-3">
   <div class="search-bar">
     <div class="search-input-box me-2">
       <input type="text" class="form-control" id="searchInput" placeholder="Search service" />
     </div>
-    <div class="location-box me-2 position-relative">
+    <div class="location-box me-2">
       <input type="text" class="form-control pe-5" id="locationInput" placeholder="Your City or Area">
       <span class="location-icon" onclick="useMyLocation()">📍</span>
     </div>
-	<div class="card shadow-sm h-100">
     <button class="search-btn" onclick="searchVendors()">🔍</button>
   </div>
-  </div>
 </div>
-<!-- Vendor listings -->
+
+<!-- Vendor Listings -->
 <section class="container py-3">
-<div class="card shadow-sm h-100">
   <h2 class="mb-3">Popular Services</h2>
-  {% if vendors %}
-    {% for vendor in vendors %}
-      <div class="vendor-card">
-        <div class="row g-2 align-items-center">
-          <div class="col-4 col-md-3">
-            {% if vendor.photos %}
-              {% set first_photo = vendor.photos.split(',')[0].strip() %}
-              <img src="{{ url_for('static', filename='uploads/' ~ first_photo) }}" alt="{{ vendor.business_name }}">
-            {% else %}
-              <img src="{{ url_for('static', filename='uploads/default.jpg') }}" alt="Default image">
-            {% endif %}
-          </div>
-          <div class="col-8 col-md-9">
+  <div id="vendorList">
+    {% if vendors %}
+      {% for vendor in vendors %}
+        <div class="vendor-card">
+          {% if vendor.photos %}
+            {% set first_photo = vendor.photos.split(',')[0].strip() %}
+            <img src="{{ url_for('static', filename='uploads/' ~ first_photo) }}" alt="{{ vendor.business_name }}">
+          {% else %}
+            <img src="{{ url_for('static', filename='uploads/default.jpg') }}" alt="Default image">
+          {% endif %}
+          <div class="vendor-info">
             <h6 class="fw-bold mb-1">
               <a href="/vendor/{{ vendor.phone }}" class="text-decoration-none text-dark">
                 {{ vendor.business_name }}
@@ -230,81 +74,41 @@
             {% if vendor.service_hours %}
               <p class="mb-1 text-muted">⏰ {{ vendor.service_hours }}</p>
             {% endif %}
-            <div class="d-flex flex-wrap gap-2 mt-1">
-              {% set show_phone = vendor.subscription == "subscribed" or (now() - vendor.created_at|todatetime('%Y-%m-%d %H:%M:%S')).days <= 90 %}
-              {% if show_phone %}
-                <a href="tel:+91{{ vendor.phone }}" class="btn btn-call btn-sm">📞 Call Now</a>
-              {% else %}
-                <button class="btn btn-outline-secondary btn-sm" disabled>🔒 Call (Pro only)</button>
-              {% endif %}
-              <a href="https://wa.me/91{{ vendor.phone }}?text=Hi%2C%20I%20found%20you%20on%20Helpo%20Services." target="_blank" class="btn btn-outline-success btn-sm">💬 WhatsApp</a>
-              <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#contactModal" data-vendor="{{ vendor.business_name }}" data-phone="{{ vendor.phone }}">🔔 Callback</button>
-            </div>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+            {% set show_phone = vendor.subscription == "subscribed" or (now() - vendor.created_at|todatetime('%Y-%m-%d %H:%M:%S')).days <= 90 %}
+            {% if show_phone %}
+              <a href="tel:+91{{ vendor.phone }}" class="btn btn-call btn-sm">📞 Call</a>
+            {% else %}
+              <button class="btn btn-outline-secondary btn-sm" disabled>🔒 Call (Pro only)</button>
+            {% endif %}
+            <a href="https://wa.me/91{{ vendor.phone }}" target="_blank" class="btn btn-outline-success btn-sm">💬 WhatsApp</a>
+            <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#contactModal" data-vendor="{{ vendor.business_name }}" data-phone="{{ vendor.phone }}">🔔 Callback</button>
+          </div>
           </div>
         </div>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p class="text-muted text-center">No vendors found.</p>
-  {% endif %}
-</div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted text-center">No vendors found.</p>
+    {% endif %}
+  </div>
 </section>
 
-<!-- Floating CTA on mobile -->
+<!-- Mobile Bottom Bar -->
 <div class="mobile-cta">
   <a href="/">🏠 Home</a>
-  <a href="/vendor">🛠 Register Your Business</a>
-  <a href="/vendor/login">🔐 Login</a>
+  <a href="/vendor">Register</a>
+  <a href="/vendor/login">Login</a>
 </div>
 
 <footer>
   <p>
-    <a href="/terms">Terms & Conditions</a> |
-    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms</a> | <a href="/privacy">Privacy</a>
   </p>
   <p>© {{ current_year }} Helpo Services</p>
 </footer>
 
-<script>
-function useMyLocation() {
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    const lat = pos.coords.latitude, lon = pos.coords.longitude;
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-    const data = await res.json();
-    const city = data.address.city || data.address.town || data.address.village || "";
-    document.getElementById("locationInput").value = city;
-  });
-}
-function searchVendors() {
-  const q = document.getElementById("searchInput").value.trim();
-  const city = document.getElementById("locationInput").value.trim();
-  if (!q && !city) { alert("Please enter a service or location"); return; }
-  window.location.href = `/?query=${encodeURIComponent(q)}&location=${encodeURIComponent(city)}`;
-}
-$(function(){
-  $("#searchInput").autocomplete({
-    source: function(req, res){
-      $.getJSON("/api/vendor_suggestions", { q: req.term, city: $("#locationInput").val().trim() }, res);
-    }, minLength: 2
-  });
-});
-
-
-
-</script>
-
- <!-- Populate vendor name in modal -->
-  <script>
-    const contactModal = document.getElementById('contactModal');
-    contactModal.addEventListener('show.bs.modal', function (event) {
-      const button = event.relatedTarget;
-      const vendor = button.getAttribute('data-vendor');
-      document.getElementById('vendorNameHidden').value = vendor;
-    });
-  </script>
-
-  <!-- Callback Modal -->
-<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+<!-- Callback Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <form id="callbackForm" class="modal-content">
       <div class="modal-header">
@@ -322,7 +126,7 @@ $(function(){
           <input type="text" class="form-control" name="user_phone" required>
         </div>
         <div class="mb-3">
-          <label>Message (optional)</label>
+          <label>Message</label>
           <textarea class="form-control" name="message"></textarea>
         </div>
       </div>
@@ -330,44 +134,16 @@ $(function(){
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="termsCheck" required>
           <label class="form-check-label" for="termsCheck">
-            I agree to the <a href="/terms" target="_blank">Terms & Conditions</a>
+            I agree to <a href="/terms" target="_blank">Terms</a>
           </label>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Send Request</button>
+        <button type="submit" class="btn btn-primary w-100">Send</button>
       </div>
     </form>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("callbackForm");
-  const modal = document.getElementById("contactModal");
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    if (!document.getElementById("termsCheck").checked) {
-      alert("Please accept Terms & Conditions");
-      return;
-    }
-    fetch("/submit_callback", { method:"POST", body: new FormData(form) })
-      .then(res=>res.json())
-      .then(data=>{
-        alert(data.message);
-        form.reset();
-        bootstrap.Modal.getInstance(modal).hide();
-      })
-      .catch(err=>alert("Server error"));
-  });
-
-  const contactModal = document.getElementById("contactModal");
-  contactModal.addEventListener("show.bs.modal", e=>{
-    const btn = e.relatedTarget;
-    document.getElementById("vendorPhoneInput").value = btn.dataset.phone;
-  });
-});
-</script>
-
+<!-- Unified script -->
+<script src="/static/script.js"></script>
 </body>
 </html>
